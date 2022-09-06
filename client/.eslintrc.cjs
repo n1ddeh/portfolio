@@ -10,6 +10,8 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
         'plugin:react/recommended',
         'plugin:prettier/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
     ],
     parser: '@typescript-eslint/parser',
     overrides: [
@@ -30,13 +32,14 @@ module.exports = {
         ecmaVersion: 12,
         sourceType: 'module',
     },
-    plugins: ['react', '@typescript-eslint', 'prettier', "html"],
+    plugins: ['react', '@typescript-eslint', 'prettier', 'html', 'import'],
     rules: {
         'react/react-in-jsx-scope': 'off',
         camelcase: 'error',
         'spaced-comment': 'error',
         quotes: ['error', 'single'],
         'no-duplicate-imports': 'error',
+        'import/no-default-export': 'error',
     },
     settings: {
         'import/resolver': {
