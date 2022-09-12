@@ -1,10 +1,19 @@
-import { StrictMode } from 'react'
+import { StrictMode, FC } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
-import './index.css'
+import { AppContainer } from './components/AppContainer'
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-    <StrictMode>
-        <App />
-    </StrictMode>
-)
+const Root: FC = () => {
+    return (
+        <StrictMode>
+            <AppContainer>
+                <App />
+            </AppContainer>
+        </StrictMode>
+    )
+}
+
+const rootElement = document.getElementById('root')
+if (rootElement === null) throw new Error('Failed to find the root element')
+
+createRoot(rootElement).render(<Root />)
