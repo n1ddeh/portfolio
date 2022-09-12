@@ -14,6 +14,7 @@ module.exports = {
         'plugin:import/typescript',
     ],
     parser: '@typescript-eslint/parser',
+    ignorePatterns: ['*.cjs', 'vite.config.ts'],
     overrides: [
         {
             files: ['*.ts', '*.tsx'],
