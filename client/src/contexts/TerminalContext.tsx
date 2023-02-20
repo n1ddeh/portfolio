@@ -23,6 +23,7 @@ type TerminalPendingLineItem = Pick<TerminalLineItem, 'value'>
 
 interface TerminalContextProps {
     data: TerminalLineItem[]
+    hiddenLineItems: TerminalLineItem[]
 
     /**
      * What the user is typing
@@ -40,12 +41,21 @@ interface TerminalContextProps {
     updatePendingLineItem: (newLineItem: TerminalPendingLineItem) => void
 }
 
+enum TerminalCommand {
+    CLEAR = 'clear',
+    NAME = 'name',
+    HELP = 'help',
+}
+
 const TerminalContext = createContext<TerminalContextProps | undefined>(
     undefined
 )
 
 export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
     const [lineItems, setLineItems] = useState<TerminalContextProps['data']>([])
+    const [hiddenLineItems, setHiddenLineItems] = useState<
+        TerminalContextProps['hiddenLineItems']
+    >([])
     const [pendingLineItem, setPendingLineItem] =
         useState<TerminalPendingLineItem>({ value: '' })
 
@@ -57,9 +67,17 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 ...currentLineItems,
                 { id: v4(), user: User.USER, value: pendingLineItem.value },
             ])
+            commandParser(sanatizedValue)
         }
 
         setPendingLineItem({ value: '' })
+    }
+
+    const addRootLineItem = (text: string): void => {
+        setLineItems((currentLineItems) => [
+            ...currentLineItems,
+            { id: v4(), user: User.ROOT, value: text },
+        ])
     }
 
     const updatePendingLineItem = (
@@ -68,10 +86,48 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         setPendingLineItem(newLineItem)
     }
 
+    const clear = (): void => {
+        setHiddenLineItems((currentHiddenLineItems) => [
+            ...lineItems,
+            ...currentHiddenLineItems,
+        ])
+        setLineItems([])
+    }
+
+    const name = (): void => {
+        addRootLineItem('Mark Minkoff')
+    }
+
+    const help = (): void => {
+        const docs: { [command in TerminalCommand]: string } = {
+            [TerminalCommand.CLEAR]: 'hides line items from the terminal',
+            [TerminalCommand.NAME]: 'prints the autahor\'s name',
+            [TerminalCommand.HELP]: 'documentation per available command',
+        }
+        const commands = Object.keys(docs).sort()
+        for (const command of commands) {
+            addRootLineItem(`${command} - ${docs[command as TerminalCommand]}`)
+        }
+    }
+
+    const commandParser = (text: string): void => {
+        const options: { [command in TerminalCommand]: () => void } = {
+            [TerminalCommand.CLEAR]: clear,
+            [TerminalCommand.NAME]: name,
+            [TerminalCommand.HELP]: help,
+        }
+        if (options[text as TerminalCommand] !== undefined) {
+            options[text as TerminalCommand]()
+        } else {
+            addRootLineItem(`msh: command not found: ${text}`)
+        }
+    }
+
     return (
         <TerminalContext.Provider
             value={{
                 data: lineItems,
+                hiddenLineItems,
                 pendingLineItem,
                 addLineItem,
                 updatePendingLineItem,
