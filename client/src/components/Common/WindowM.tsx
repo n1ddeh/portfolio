@@ -57,16 +57,8 @@ export const WindowM: FC<WindowMProps> = memo(
             }
         }, [addWindow, removeWindow, windowId, windowRef])
 
-        const handleStop = useCallback(() => {
-            console.log('handleStop')
-        }, [])
-
         return (
-            <Draggable
-                nodeRef={windowContentRef}
-                {...draggableProps}
-                onStop={handleStop}
-            >
+            <Draggable nodeRef={windowContentRef} {...draggableProps}>
                 <div
                     ref={windowContentRef}
                     id={windowId}

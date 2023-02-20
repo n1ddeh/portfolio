@@ -1,6 +1,12 @@
-import { type FC, type PropsWithChildren, createContext, useState } from 'react'
+import {
+    type FC,
+    type PropsWithChildren,
+    createContext,
+    useState,
+    useContext,
+} from 'react'
 import { v4 } from 'uuid'
-import { trim } from 'lodash'
+import { isUndefined, trim } from 'lodash'
 
 export enum User {
     ROOT = 'ROOT',
@@ -74,4 +80,13 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
             {children}
         </TerminalContext.Provider>
     )
+}
+
+export const useTerminalContext = (): TerminalContextProps => {
+    const context = useContext(TerminalContext)
+    if (isUndefined(context))
+        throw new Error(
+            'useTerminalContext() must be used within an TerminalProvider'
+        )
+    return context
 }

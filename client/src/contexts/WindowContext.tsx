@@ -24,11 +24,7 @@ interface WindowContextProps {
 const WindowContext = createContext<WindowContextProps | undefined>(undefined)
 
 export const WindowProvider: FC<PropsWithChildren> = ({ children }) => {
-    const [windowRefs, setWindowRefs] = useState<WindowRef[]>([])
-
-    useEffect(() => {
-        console.log(map(windowRefs, 'id'))
-    }, [windowRefs])
+    const [, setWindowRefs] = useState<WindowRef[]>([])
 
     const setZIndex = useCallback(() => {
         setWindowRefs((currentWindowRefs: WindowRef[]) => {
@@ -36,7 +32,6 @@ export const WindowProvider: FC<PropsWithChildren> = ({ children }) => {
                 const cRef = currentWindowRefs[i].ref.current
 
                 if (cRef == null) {
-                    console.log('cRef undefined', currentWindowRefs[i].id)
                     continue
                 }
 
