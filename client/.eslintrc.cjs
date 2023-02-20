@@ -12,6 +12,7 @@ module.exports = {
         'plugin:prettier/recommended',
         'plugin:import/recommended',
         'plugin:import/typescript',
+        'plugin:react-hooks/recommended',
     ],
     parser: '@typescript-eslint/parser',
     ignorePatterns: ['*.cjs', 'vite.config.ts'],
@@ -41,10 +42,15 @@ module.exports = {
         quotes: ['error', 'single'],
         'no-duplicate-imports': 'error',
         'import/no-default-export': 'error',
+        '@typescript-eslint/no-unsafe-assignment': 1,
+        'react/prop-types': 0,
     },
     settings: {
         'import/resolver': {
             typescript: {},
+        },
+        react: {
+            version: '^18.2.0',
         },
     },
 }

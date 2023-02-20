@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren } from 'react'
+import { type FC, type PropsWithChildren } from 'react'
 
 type AppContainerProps = PropsWithChildren
 export const AppContainer: FC<AppContainerProps> = ({ children }) => {

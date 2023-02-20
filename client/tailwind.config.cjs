@@ -6,6 +6,12 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    fontFamily: {
+      terminal: ['"Meslo"'],
+    },
+    backgroundColor: {
+      'toolbar': '#696969'
+    }
   },
   plugins: [],
 }

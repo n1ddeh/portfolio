@@ -1,19 +1,17 @@
-import { map, range } from 'lodash'
-import { FC } from 'react'
-import { TerminalToolbar } from './TerminalToolbar'
+import { type FC, memo } from 'react'
+import { WindowM } from '../Common/WindowM'
 
-export const Terminal: FC = () => {
+export const Terminal: FC = memo(() => {
     return (
-        <div
-            className="flex flex-grow rounded-2xl relative pt-8 pb-3"
-            style={{
-                width: 920,
-                height: 480,
-                backgroundColor: '#E1E1E1',
-                borderRadius: 20,
-            }}
+        <WindowM
+            windowId="Terminal"
+            width={960}
+            height={480}
+            toolbarProps={{ title: '-msh' }}
         >
-            <TerminalToolbar />
-        </div>
+            <div className="flex flex-grow rounded-2xl relative pt-8 pb-3"></div>
+        </WindowM>
     )
-}
+})
+
+Terminal.displayName = 'Terminal'
