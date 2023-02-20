@@ -6,6 +6,7 @@ import {
     useCallback,
     useLayoutEffect,
     useMemo,
+    useState,
 } from 'react'
 import { Toolbar, type ToolbarProps } from './Toolbar'
 import Draggable, { type DraggableProps } from 'react-draggable'
@@ -23,6 +24,7 @@ export const WindowM: FC<WindowMProps> = memo(
     ({ windowId, children, toolbarProps, width, height }) => {
         const windowContentRef = useRef<HTMLDivElement>(null)
         const toolbarRef = useRef<HTMLDivElement>(null)
+        const [mouseOverToolbar, setMouseOverToolbar] = useState<boolean>(false)
 
         const { addWindow, removeWindow, bringWindowForward } =
             useWindowContext()
@@ -37,6 +39,10 @@ export const WindowM: FC<WindowMProps> = memo(
         const draggableProps: Partial<DraggableProps> = {
             onStart: () => {
                 bringWindowForward(windowRef)
+
+                if (!mouseOverToolbar) {
+                    return false
+                }
             },
             onStop: () => {
                 bringWindowForward(windowRef)
@@ -65,13 +71,25 @@ export const WindowM: FC<WindowMProps> = memo(
                     ref={windowContentRef}
                     id={windowId}
                     className="flex relative w-full h-full z-0 rounded-2xl"
+                    onClick={() => {
+                        bringWindowForward(windowRef)
+                    }}
                     style={{
                         width,
                         height,
                         backgroundColor: '#E1E1E1',
                     }}
                 >
-                    <Toolbar ref={toolbarRef} {...toolbarProps} />
+                    <Toolbar
+                        onMouseEnter={() => {
+                            setMouseOverToolbar(true)
+                        }}
+                        onMouseLeave={() => {
+                            setMouseOverToolbar(false)
+                        }}
+                        ref={toolbarRef}
+                        {...toolbarProps}
+                    />
                     {children}
                 </div>
             </Draggable>
