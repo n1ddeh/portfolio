@@ -44,6 +44,7 @@ module.exports = {
         'import/no-default-export': 'error',
         '@typescript-eslint/no-unsafe-assignment': 1,
         'react/prop-types': 0,
+        "prettier/prettier": ["error", { "singleQuote": true }]
     },
     settings: {
         'import/resolver': {
