@@ -6,7 +6,11 @@ import {
     useContext,
 } from 'react'
 import { v4 } from 'uuid'
-import { isUndefined, trim } from 'lodash'
+import { isUndefined, split, trim } from 'lodash'
+import { useHello } from '../terminal-programs/useHello'
+import { useTime } from '../terminal-programs/useTime'
+import { useHelp } from '../terminal-programs/useHelp'
+import { useAuthor } from '../terminal-programs/useAuthor'
 
 export enum User {
     ROOT = 'ROOT',
@@ -35,16 +39,21 @@ interface TerminalContextProps {
      */
     addLineItem: () => void
 
+    addRootLineItem: (text: string) => void
+
     /**
      *  Sets the pending line item
      */
     updatePendingLineItem: (newLineItem: TerminalPendingLineItem) => void
 }
 
-enum TerminalCommand {
+export enum TerminalCommand {
+    HELLO = 'hello',
+    HI = 'hi',
     CLEAR = 'clear',
-    NAME = 'name',
+    AUTHOR = 'author',
     HELP = 'help',
+    TIME = 'time',
 }
 
 const TerminalContext = createContext<TerminalContextProps | undefined>(
@@ -73,6 +82,9 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         setPendingLineItem({ value: '' })
     }
 
+    /**
+     * Adds text from the ROOT user to the terminal interface
+     */
     const addRootLineItem = (text: string): void => {
         setLineItems((currentLineItems) => [
             ...currentLineItems,
@@ -86,41 +98,42 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         setPendingLineItem(newLineItem)
     }
 
-    const clear = (): void => {
+    const clear = (): string => {
         setHiddenLineItems((currentHiddenLineItems) => [
             ...lineItems,
             ...currentHiddenLineItems,
         ])
         setLineItems([])
-    }
-
-    const name = (): void => {
-        addRootLineItem('Mark Minkoff')
-    }
-
-    const help = (): void => {
-        const docs: { [command in TerminalCommand]: string } = {
-            [TerminalCommand.CLEAR]: 'hides line items from the terminal',
-            [TerminalCommand.NAME]: 'prints the autahor\'s name',
-            [TerminalCommand.HELP]: 'documentation per available command',
-        }
-        const commands = Object.keys(docs).sort()
-        for (const command of commands) {
-            addRootLineItem(`${command} - ${docs[command as TerminalCommand]}`)
-        }
+        return ''
     }
 
     const commandParser = (text: string): void => {
-        const options: { [command in TerminalCommand]: () => void } = {
+        const options: {
+            [command in TerminalCommand]: () => string
+        } = {
             [TerminalCommand.CLEAR]: clear,
-            [TerminalCommand.NAME]: name,
-            [TerminalCommand.HELP]: help,
+            [TerminalCommand.AUTHOR]: useAuthor,
+            [TerminalCommand.HELP]: useHelp,
+            [TerminalCommand.TIME]: useTime,
+            [TerminalCommand.HELLO]: useHello,
+            [TerminalCommand.HI]: useHello,
         }
         if (options[text as TerminalCommand] !== undefined) {
-            options[text as TerminalCommand]()
+            const res = options[text as TerminalCommand]()
+            if (res !== '') {
+                const sanitized = sanatizer(res)
+                for (const sanatizedValue of sanitized) {
+                    addRootLineItem(sanatizedValue)
+                }
+            }
         } else {
-            addRootLineItem(`msh: command not found: ${text}`)
+            addRootLineItem(`msh: command not found: **${text}**`)
         }
+    }
+
+    const sanatizer = (text: string): string[] => {
+        const lines = split(text, '\n')
+        return lines
     }
 
     return (
@@ -130,6 +143,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 hiddenLineItems,
                 pendingLineItem,
                 addLineItem,
+                addRootLineItem,
                 updatePendingLineItem,
             }}
         >
@@ -145,4 +159,9 @@ export const useTerminalContext = (): TerminalContextProps => {
             'useTerminalContext() must be used within an TerminalProvider'
         )
     return context
+}
+
+export const useAddRootLineItem = (): ((text: string) => void) => {
+    const context = useTerminalContext()
+    return context.addRootLineItem
 }

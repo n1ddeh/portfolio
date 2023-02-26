@@ -1,8 +1,20 @@
-import { type FC, memo, type DOMAttributes, useState, useEffect } from 'react'
+import {
+    type FC,
+    memo,
+    type DOMAttributes,
+    useState,
+    useEffect,
+    useMemo,
+} from 'react'
 import { WindowM } from '../Common/WindowM'
-import { User, useTerminalContext } from '../../contexts/TerminalContext'
+import {
+    TerminalCommand,
+    User,
+    useTerminalContext,
+} from '../../contexts/TerminalContext'
 import { map } from 'lodash'
 import './Terminal.css'
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 
 export const Terminal: FC = memo(() => {
     const { data, updatePendingLineItem, addLineItem, pendingLineItem } =
@@ -20,11 +32,15 @@ export const Terminal: FC = memo(() => {
 
     const lineItems = map(data, (lineItem) => {
         return (
-            <div key={lineItem.id} className="leading-tight">
+            <div key={lineItem.id} className="leading-tight block">
                 {lineItem.user === User.USER ? (
-                    <span className="text-green-700">{'> '}</span>
+                    <span className="text-green-700 inline-block mr-2">
+                        {'>'}
+                    </span>
                 ) : undefined}
-                {lineItem.value}
+                <ReactMarkdown className="inline-block">
+                    {lineItem.value}
+                </ReactMarkdown>
             </div>
         )
     })
@@ -56,6 +72,17 @@ export const Terminal: FC = memo(() => {
         inputElement.focus()
     }
 
+    const isPendingLineItemValidCommand = useMemo(() => {
+        for (const command of Object.values(TerminalCommand)) {
+            if (command === pendingLineItem.value) return true
+        }
+        return false
+    }, [pendingLineItem.value])
+
+    const validCommandClass = isPendingLineItemValidCommand
+        ? 'text-green-600'
+        : 'text-red-600'
+
     return (
         <WindowM
             windowId="Terminal"
@@ -73,13 +100,15 @@ export const Terminal: FC = memo(() => {
                     <div className="relative mt-2">
                         <span className="absolute">
                             <span className="text-purple-700">{'> '}</span>
-                            <span>
+                            <span className={validCommandClass}>
                                 {pendingLineItem.value.slice(
                                     0,
                                     pendingLineItem.value.length - 1
                                 )}
                             </span>
-                            <span className="caret-block">
+                            <span
+                                className={`${validCommandClass} caret-block`}
+                            >
                                 {pendingLineItem.value === ''
                                     ? '|'
                                     : pendingLineItem.value.at(-1)}
