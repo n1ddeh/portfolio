@@ -4,7 +4,6 @@ export const useHelp = (): string => {
     let res = ''
 
     const docs: { [command in TerminalCommand]?: string } = {
-        [TerminalCommand.AUTHOR]: 'prints the name',
         [TerminalCommand.CLEAR]: 'hides line items from the terminal',
         [TerminalCommand.CONTACT_ME]: 'lists contacts info for the author',
         [TerminalCommand.SOURCE]: 'repo for this project',
