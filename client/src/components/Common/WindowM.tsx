@@ -14,13 +14,12 @@ import { useWindowContext } from '../../contexts/WindowContext'
 export type WindowMProps = PropsWithChildren<{
     windowId: string
     toolbarProps?: ToolbarProps
-    width?: number
-    height?: number
+    className?: string
     title?: string
 }>
 
 export const WindowM: FC<WindowMProps> = memo(
-    ({ windowId, children, toolbarProps, width, height }) => {
+    ({ windowId, children, toolbarProps, className = '' }) => {
         const windowContentRef = useRef<HTMLDivElement>(null)
         const toolbarRef = useRef<HTMLDivElement>(null)
         const [mouseOverToolbar, setMouseOverToolbar] = useState<boolean>(false)
@@ -61,13 +60,11 @@ export const WindowM: FC<WindowMProps> = memo(
                 <div
                     ref={windowContentRef}
                     id={windowId}
-                    className="flex relative w-full h-full z-0 rounded-2xl"
+                    className={`flex relative z-0 rounded-2xl ${className}`}
                     onClick={() => {
                         bringWindowForward(windowRef)
                     }}
                     style={{
-                        width,
-                        height,
                         backgroundColor: '#E1E1E1',
                     }}
                 >

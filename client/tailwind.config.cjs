@@ -5,7 +5,13 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      width: {
+        '120': '30rem',
+        '140': '35rem',
+        '160': '40rem'
+      }
+    },
     fontFamily: {
       terminal: ['"Meslo"'],
     },

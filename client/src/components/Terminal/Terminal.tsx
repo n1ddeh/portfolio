@@ -129,8 +129,7 @@ export const Terminal: FC = memo(() => {
     return (
         <WindowM
             windowId="Terminal"
-            width={960}
-            height={480}
+            className="w-screen h-screen md:w-160 md:h-96"
             toolbarProps={{ title: '-msh' }}
         >
             <div
@@ -138,9 +137,9 @@ export const Terminal: FC = memo(() => {
                 onClick={onTerminalClickHandler}
                 className="flex flex-grow rounded-2xl relative pt-8 pb-3 overflow-y-auto"
             >
-                <div className="flex flex-col w-full pl-3 text-lg">
+                <div className="flex flex-col w-full pl-3 text-sm md:text-md">
                     {lineItems}
-                    <div className="relative mt-2">
+                    <div className=" relative mt-2">
                         <span className="absolute">
                             <span className="text-purple-700">{'> '}</span>
                             <span className={validCommandClass}>
