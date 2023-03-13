@@ -7,6 +7,7 @@ export const useHelp = (): string => {
         [TerminalCommand.AUTHOR]: 'prints the name',
         [TerminalCommand.CLEAR]: 'hides line items from the terminal',
         [TerminalCommand.CONTACT_ME]: 'lists contacts info for the author',
+        [TerminalCommand.SOURCE]: 'repo for this project',
     }
     const commands = Object.keys(docs).sort() as TerminalCommand[]
 

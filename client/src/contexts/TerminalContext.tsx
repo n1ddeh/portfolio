@@ -14,6 +14,7 @@ import { useAuthor } from '../terminal-programs/useAuthor'
 import { useRickRoll } from '../terminal-programs/useRickRoll'
 import { sleep } from '../utils/sleep'
 import { useContactMe } from '../terminal-programs/useContactMe'
+import { useSource } from '../terminal-programs/useSource'
 
 export enum User {
     ROOT = 'ROOT',
@@ -66,6 +67,7 @@ export enum TerminalCommand {
     TIME = 'time',
     RICK_ROLL = 'rick roll',
     CONTACT_ME = 'contact',
+    SOURCE = 'source',
 }
 
 const TerminalContext = createContext<TerminalContextProps | undefined>(
@@ -175,6 +177,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
             [TerminalCommand.HI]: useHello,
             [TerminalCommand.RICK_ROLL]: useRickRoll,
             [TerminalCommand.CONTACT_ME]: useContactMe,
+            [TerminalCommand.SOURCE]: useSource,
         }
         if (options[text as TerminalCommand] !== undefined) {
             let res = options[text as TerminalCommand]()

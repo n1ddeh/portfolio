@@ -79,7 +79,7 @@ export const Terminal: FC = memo(() => {
                         {'>'}
                     </span>
                 ) : undefined}
-                <ReactMarkdown className="inline-block">
+                <ReactMarkdown className="inline-block" linkTarget="_blank">
                     {lineItem.value}
                 </ReactMarkdown>
             </div>
