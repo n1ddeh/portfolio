@@ -14,8 +14,8 @@ import {
     useTerminalContext,
 } from '../../contexts/TerminalContext'
 import { map } from 'lodash'
-import './Terminal.css'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
+import './Terminal.css'
 
 export const Terminal: FC = memo(() => {
     const {
@@ -129,7 +129,7 @@ export const Terminal: FC = memo(() => {
     return (
         <WindowM
             windowId="Terminal"
-            className="w-screen h-screen md:w-160 md:h-96"
+            className="py-2 md:w-160 md:!h-96"
             toolbarProps={{ title: '-msh' }}
         >
             <div

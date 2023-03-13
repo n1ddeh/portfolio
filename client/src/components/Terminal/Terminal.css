@@ -4,6 +4,7 @@ span.caret-block {
 }
 
 @keyframes blink {
+
     from,
     to {
         background-color: transparent;
@@ -12,4 +13,8 @@ span.caret-block {
     50% {
         background-color: rgb(203, 120, 192);
     }
+}
+
+#Terminal {
+    height: calc(100vh - theme(spacing.7));
 }
