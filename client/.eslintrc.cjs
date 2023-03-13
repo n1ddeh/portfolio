@@ -6,7 +6,6 @@ module.exports = {
     extends: [
         'standard-with-typescript',
         'prettier',
-        'prettier/prettier',
         'plugin:@typescript-eslint/recommended',
         'plugin:react/recommended',
         'plugin:prettier/recommended',
@@ -36,15 +35,15 @@ module.exports = {
     },
     plugins: ['react', '@typescript-eslint', 'prettier', 'html', 'import'],
     rules: {
+        "prettier/prettier": ["error"],
         'react/react-in-jsx-scope': 'off',
         camelcase: 'error',
         'spaced-comment': 'error',
-        quotes: ['error', 'single'],
         'no-duplicate-imports': 'error',
+        'quotes': "off",
         'import/no-default-export': 'error',
         '@typescript-eslint/no-unsafe-assignment': 1,
         'react/prop-types': 0,
-        "prettier/prettier": ["error", { "singleQuote": true }]
     },
     settings: {
         'import/resolver': {

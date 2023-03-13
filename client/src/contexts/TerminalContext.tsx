@@ -6,12 +6,14 @@ import {
     useContext,
 } from 'react'
 import { v4 } from 'uuid'
-import { isUndefined, split, trim } from 'lodash'
+import { isUndefined, random, split, trim, last, isString } from 'lodash'
 import { useHello } from '../terminal-programs/useHello'
 import { useTime } from '../terminal-programs/useTime'
 import { useHelp } from '../terminal-programs/useHelp'
 import { useAuthor } from '../terminal-programs/useAuthor'
 import { useRickRoll } from '../terminal-programs/useRickRoll'
+import { sleep } from '../utils/sleep'
+import { useContactMe } from '../terminal-programs/useContactMe'
 
 export enum User {
     ROOT = 'ROOT',
@@ -46,6 +48,13 @@ interface TerminalContextProps {
      *  Sets the pending line item
      */
     updatePendingLineItem: (newLineItem: TerminalPendingLineItem) => void
+
+    typePendingLineItem: (
+        newLineItem: TerminalPendingLineItem,
+        options?: { finalItem?: TerminalPendingLineItem }
+    ) => Promise<void>
+
+    isTyping: boolean
 }
 
 export enum TerminalCommand {
@@ -56,6 +65,7 @@ export enum TerminalCommand {
     HELP = 'help',
     TIME = 'time',
     RICK_ROLL = 'rick roll',
+    CONTACT_ME = 'contact',
 }
 
 const TerminalContext = createContext<TerminalContextProps | undefined>(
@@ -69,6 +79,8 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
     >([])
     const [pendingLineItem, setPendingLineItem] =
         useState<TerminalPendingLineItem>({ value: '' })
+
+    const [isTyping, setIsTyping] = useState<boolean>(false)
 
     const addLineItem = (): void => {
         const sanatizedValue = trim(pendingLineItem.value)
@@ -100,6 +112,48 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         setPendingLineItem(newLineItem)
     }
 
+    const typePendingLineItem = async (
+        newLineItem: TerminalPendingLineItem,
+        options: { finalItem?: TerminalPendingLineItem } = {}
+    ): Promise<void> => {
+        setPendingLineItem({ value: '' })
+
+        if (newLineItem.value.length === 0) return
+
+        setIsTyping(true)
+
+        const lineItemsOverTime: Array<{ value: string; time: number }> = [
+            { value: newLineItem.value[0], time: 0 },
+        ]
+
+        const minMs = 25
+        const maxMs = 75
+
+        for (let i = 1; i < newLineItem.value.length; i++) {
+            const nextValue =
+                lineItemsOverTime[i - 1].value + newLineItem.value[i]
+            lineItemsOverTime.push({
+                value: nextValue,
+                time: random(minMs, maxMs),
+            })
+        }
+
+        for (const lineItem of lineItemsOverTime) {
+            setPendingLineItem({ value: lineItem.value })
+            await sleep(lineItem.time)
+        }
+
+        const lastItem =
+            options.finalItem?.value ?? last(lineItemsOverTime)?.value
+
+        if (lastItem !== undefined) {
+            addRootLineItem(lastItem)
+        }
+
+        setPendingLineItem({ value: '' })
+        setIsTyping(false)
+    }
+
     const clear = (): string => {
         setHiddenLineItems((currentHiddenLineItems) => [
             ...lineItems,
@@ -111,7 +165,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
 
     const commandParser = (text: string): void => {
         const options: {
-            [command in TerminalCommand]: () => string
+            [command in TerminalCommand]: () => string | string[]
         } = {
             [TerminalCommand.CLEAR]: clear,
             [TerminalCommand.AUTHOR]: useAuthor,
@@ -120,9 +174,13 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
             [TerminalCommand.HELLO]: useHello,
             [TerminalCommand.HI]: useHello,
             [TerminalCommand.RICK_ROLL]: useRickRoll,
+            [TerminalCommand.CONTACT_ME]: useContactMe,
         }
         if (options[text as TerminalCommand] !== undefined) {
-            const res = options[text as TerminalCommand]()
+            let res = options[text as TerminalCommand]()
+            if (!isString(res)) {
+                res = res.join('\n')
+            }
             if (res !== '') {
                 const sanitized = sanatizer(res)
                 for (const sanatizedValue of sanitized) {
@@ -148,6 +206,8 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 addLineItem,
                 addRootLineItem,
                 updatePendingLineItem,
+                typePendingLineItem,
+                isTyping,
             }}
         >
             {children}

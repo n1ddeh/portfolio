@@ -5,6 +5,7 @@ import {
     useState,
     useEffect,
     useMemo,
+    useLayoutEffect,
 } from 'react'
 import { WindowM } from '../Common/WindowM'
 import {
@@ -17,8 +18,14 @@ import './Terminal.css'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 
 export const Terminal: FC = memo(() => {
-    const { data, updatePendingLineItem, addLineItem, pendingLineItem } =
-        useTerminalContext()
+    const {
+        data,
+        updatePendingLineItem,
+        typePendingLineItem,
+        addLineItem,
+        pendingLineItem,
+        isTyping,
+    } = useTerminalContext()
 
     const [shouldScrollOnNextTick, setShouldScrollOnNextTick] =
         useState<boolean>(false)
@@ -29,6 +36,40 @@ export const Terminal: FC = memo(() => {
             setShouldScrollOnNextTick(false)
         }
     }, [shouldScrollOnNextTick])
+
+    useLayoutEffect(() => {
+        const onBoot = async (): Promise<void> => {
+            await typePendingLineItem({ value: 'Welcome!' })
+            await typePendingLineItem({ value: 'My name is Mark Minkoff' })
+            await typePendingLineItem(
+                {
+                    value: 'I am a Full Stack Enginner currently bulding @ ManageXR',
+                },
+                {
+                    finalItem: {
+                        value: 'I am a Full Stack Enginner currently bulding @ [ManageXR](https://www.managexr.com/)',
+                    },
+                }
+            )
+            await typePendingLineItem(
+                {
+                    value: 'Connect with me on LinkedIn, Github, or contact me at markminkoff00 at gmail',
+                },
+                {
+                    finalItem: {
+                        value: 'Connect with me on [LinkedIn](https://www.linkedin.com/in/markminkoff/), [Github](https://github.com/n1ddeh), or contact me at markminkoff00 at gmail',
+                    },
+                }
+            )
+            await typePendingLineItem(
+                { value: 'type help for more commands' },
+                { finalItem: { value: 'type **help** for more commands' } }
+            )
+        }
+
+        void onBoot()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const lineItems = map(data, (lineItem) => {
         return (
@@ -79,7 +120,9 @@ export const Terminal: FC = memo(() => {
         return false
     }, [pendingLineItem.value])
 
-    const validCommandClass = isPendingLineItemValidCommand
+    const validCommandClass = isTyping
+        ? ''
+        : isPendingLineItemValidCommand
         ? 'text-green-600'
         : 'text-red-600'
 

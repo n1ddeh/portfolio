@@ -1,10 +1,10 @@
 import { audio } from '../audio'
 import { RickRollImage } from '../images'
 export const useRickRoll = (): string => {
-    const terminalWindow = document.getElementById('Portrait')
+    const terminalWindow = document.getElementById('Terminal')
     const rickRollGif = document.createElement('img')
     rickRollGif.src = RickRollImage
-    rickRollGif.className = 'absolute rounded-2xl'
+    rickRollGif.className = 'absolute rounded-2xl top-0 right-0 w-64'
     if (terminalWindow == null) return ''
 
     const playRickRoll = async (): Promise<void> => {
