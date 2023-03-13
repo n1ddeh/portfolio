@@ -129,7 +129,7 @@ export const Terminal: FC = memo(() => {
     return (
         <WindowM
             windowId="Terminal"
-            className="py-2 md:w-160 md:!h-96"
+            className="py-2 md:!w-160 md:!h-96"
             toolbarProps={{ title: '-msh' }}
         >
             <div
