@@ -43,11 +43,11 @@ export const Terminal: FC = memo(() => {
             await typePendingLineItem({ value: 'My name is Mark Minkoff' })
             await typePendingLineItem(
                 {
-                    value: 'I am a Full Stack Enginner currently bulding @ ManageXR',
+                    value: 'I am a Full Stack Enginner currently building @ ManageXR',
                 },
                 {
                     finalItem: {
-                        value: 'I am a Full Stack Enginner currently bulding @ [ManageXR](https://www.managexr.com/)',
+                        value: 'I am a Full Stack Enginner currently building @ [ManageXR](https://www.managexr.com/)',
                     },
                 }
             )
