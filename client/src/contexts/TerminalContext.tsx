@@ -15,6 +15,8 @@ import { useRickRoll } from '../terminal-programs/useRickRoll'
 import { sleep } from '../utils/sleep'
 import { useContactMe } from '../terminal-programs/useContactMe'
 import { useSource } from '../terminal-programs/useSource'
+import { useAnalyticsContext } from './AnalyticsContext'
+import { AnalyticsEvent } from '../data/types/AnalyticsEvent'
 
 export enum User {
     ROOT = 'ROOT',
@@ -76,6 +78,7 @@ const TerminalContext = createContext<TerminalContextProps | undefined>(
 
 export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
     const [lineItems, setLineItems] = useState<TerminalContextProps['data']>([])
+    const { logEvent } = useAnalyticsContext()
     const [hiddenLineItems, setHiddenLineItems] = useState<
         TerminalContextProps['hiddenLineItems']
     >([])
@@ -189,9 +192,16 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 for (const sanatizedValue of sanitized) {
                     addRootLineItem(sanatizedValue)
                 }
+                sendAnalyticsForCommand(text)
             }
         } else {
             addRootLineItem(`msh: command not found: **${text}**`)
+        }
+    }
+
+    const sendAnalyticsForCommand = (text: string): void => {
+        if (text === TerminalCommand.CONTACT_ME) {
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND_CONTACT_ME)
         }
     }
 
