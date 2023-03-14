@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode dev",
     "build": "tsc && vite build",
+    "deploy": "tsc && vite build --mode dev && firebase deploy --only hosting:markminkoff",
+    "deploy:prod": "tsc && vite build --mode prod && firebase deploy --only hosting:markminkoff",
     "preview": "vite preview",
     "prepare": "cd .. && husky install"
   },
