@@ -44,11 +44,13 @@ export const WindowM: FC<WindowMProps> = memo(
                 ref={windowContentRef}
                 id={windowId}
                 className={`flex relative z-0 rounded-2xl ${className}`}
+                style={{
+                    background: 'rgba(191, 191, 191, 0.90)',
+                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+                    backdropFilter: 'blur(1px)',
+                }}
                 onClick={() => {
                     bringWindowForward(windowRef)
-                }}
-                style={{
-                    backgroundColor: '#E1E1E1',
                 }}
             >
                 <Toolbar ref={toolbarRef} {...toolbarProps} />

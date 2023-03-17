@@ -10,6 +10,11 @@ export type Ref = HTMLDivElement
 export const Toolbar = forwardRef<Ref, ToolbarProps>(({ title }, ref) => {
     return (
         <div
+            style={{
+                background: 'rgba(82, 147, 202, 0.12)',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(5px)',
+            }}
             className="z-10 w-full h-8 absolute top-0 rounded-t-2xl drop-shadow-md px-2 py-1 before:content-[''] before:bg-toolbar before:absolute before:w-full before:h-full before:inset-0 before:rounded-t-2xl before:opacity-60"
             ref={ref}
         >

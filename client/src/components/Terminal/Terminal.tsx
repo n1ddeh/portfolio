@@ -120,11 +120,11 @@ export const Terminal: FC = memo(() => {
         return false
     }, [pendingLineItem.value])
 
-    const validCommandClass = isTyping
+    const commandColor = isTyping
         ? ''
         : isPendingLineItemValidCommand
-        ? 'text-green-600'
-        : 'text-red-600'
+        ? '#128022'
+        : '#801212'
 
     return (
         <WindowM
@@ -142,14 +142,15 @@ export const Terminal: FC = memo(() => {
                     <div className=" relative mt-2">
                         <span className="absolute">
                             <span className="text-purple-700">{'> '}</span>
-                            <span className={validCommandClass}>
+                            <span style={{ color: commandColor }}>
                                 {pendingLineItem.value.slice(
                                     0,
                                     pendingLineItem.value.length - 1
                                 )}
                             </span>
                             <span
-                                className={`${validCommandClass} caret-block`}
+                                style={{ color: commandColor }}
+                                className={`caret-block`}
                             >
                                 {pendingLineItem.value === ''
                                     ? '|'
