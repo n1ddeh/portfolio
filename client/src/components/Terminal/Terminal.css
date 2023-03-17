@@ -16,6 +16,5 @@ span.caret-block {
 }
 
 #Terminal {
-    height: calc(100vh - theme(spacing.7));
     width: calc(100vw - theme(spacing.6));
 }

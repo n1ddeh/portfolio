@@ -1,14 +1,14 @@
-import { audio } from '../audio'
-import { RickRollImage } from '../images'
+import { AudioRickRoll } from '../audio'
+import { ImageRickRoll } from '../images'
 export const useRickRoll = (): string => {
     const terminalWindow = document.getElementById('Terminal')
     const rickRollGif = document.createElement('img')
-    rickRollGif.src = RickRollImage
+    rickRollGif.src = ImageRickRoll
     rickRollGif.className = 'absolute rounded-2xl top-0 right-0 w-64'
     if (terminalWindow == null) return ''
 
     const playRickRoll = async (): Promise<void> => {
-        const rickRoll = new Audio(audio.rickRoll)
+        const rickRoll = new Audio(AudioRickRoll)
         rickRoll.addEventListener('play', () => {
             terminalWindow.appendChild(rickRollGif)
         })

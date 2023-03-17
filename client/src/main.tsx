@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { AppContainer } from './components/AppContainer'
 // eslint-disable-next-line import/no-unresolved
-import 'virtual:fonts.css'
 import { WindowProvider } from './contexts/WindowContext'
 import './firebase-config.ts'
 

@@ -5,10 +5,8 @@ import {
     type PropsWithChildren,
     useLayoutEffect,
     useMemo,
-    useState,
 } from 'react'
 import { Toolbar, type ToolbarProps } from './Toolbar'
-import Draggable, { type DraggableProps } from 'react-draggable'
 import { useWindowContext } from '../../contexts/WindowContext'
 
 export type WindowMProps = PropsWithChildren<{
@@ -22,7 +20,6 @@ export const WindowM: FC<WindowMProps> = memo(
     ({ windowId, children, toolbarProps, className = '' }) => {
         const windowContentRef = useRef<HTMLDivElement>(null)
         const toolbarRef = useRef<HTMLDivElement>(null)
-        const [mouseOverToolbar, setMouseOverToolbar] = useState<boolean>(false)
 
         const { addWindow, removeWindow, bringWindowForward } =
             useWindowContext()
@@ -34,19 +31,6 @@ export const WindowM: FC<WindowMProps> = memo(
             }
         }, [windowId])
 
-        const draggableProps: Partial<DraggableProps> = {
-            onStart: () => {
-                bringWindowForward(windowRef)
-
-                if (!mouseOverToolbar) {
-                    return false
-                }
-            },
-            onStop: () => {
-                bringWindowForward(windowRef)
-            },
-        }
-
         useLayoutEffect(() => {
             addWindow(windowRef)
 
@@ -56,31 +40,20 @@ export const WindowM: FC<WindowMProps> = memo(
         }, [addWindow, removeWindow, windowId, windowRef])
 
         return (
-            <Draggable nodeRef={windowContentRef} {...draggableProps}>
-                <div
-                    ref={windowContentRef}
-                    id={windowId}
-                    className={`flex relative z-0 rounded-2xl ${className}`}
-                    onClick={() => {
-                        bringWindowForward(windowRef)
-                    }}
-                    style={{
-                        backgroundColor: '#E1E1E1',
-                    }}
-                >
-                    <Toolbar
-                        onMouseEnter={() => {
-                            setMouseOverToolbar(true)
-                        }}
-                        onMouseLeave={() => {
-                            setMouseOverToolbar(false)
-                        }}
-                        ref={toolbarRef}
-                        {...toolbarProps}
-                    />
-                    {children}
-                </div>
-            </Draggable>
+            <div
+                ref={windowContentRef}
+                id={windowId}
+                className={`flex relative z-0 rounded-2xl ${className}`}
+                onClick={() => {
+                    bringWindowForward(windowRef)
+                }}
+                style={{
+                    backgroundColor: '#E1E1E1',
+                }}
+            >
+                <Toolbar ref={toolbarRef} {...toolbarProps} />
+                {children}
+            </div>
         )
     }
 )
