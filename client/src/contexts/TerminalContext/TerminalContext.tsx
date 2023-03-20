@@ -109,10 +109,10 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         [TerminalCommand.HELLO]: useHello,
         [TerminalCommand.HI]: useHello,
         [TerminalCommand.RICK_ROLL]: useRickRoll,
-        [TerminalCommand.CONTACT_ME]: () => {
+        [TerminalCommand.CONTACT_ME]: (() => {
             logEvent(AnalyticsEvent.TERMINAL_COMMAND_CONTACT_ME)
             return useContactMe
-        },
+        })(),
         [TerminalCommand.SOURCE]: useSource,
     }
 
