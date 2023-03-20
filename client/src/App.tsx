@@ -1,7 +1,7 @@
 import { type FC } from 'react'
 import './index.css'
 import { Terminal } from './components/Terminal/Terminal'
-import { TerminalProvider } from './contexts/TerminalContext'
+import { TerminalProvider } from './contexts/TerminalContext/TerminalContext'
 import { AnalyticsProvider } from './contexts/AnalyticsContext'
 
 export const App: FC = () => {

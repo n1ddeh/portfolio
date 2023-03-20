@@ -2,20 +2,20 @@ import {
     type FC,
     memo,
     type DOMAttributes,
-    useState,
-    useEffect,
     useMemo,
     useLayoutEffect,
+    useRef,
+    useCallback,
 } from 'react'
 import { WindowM } from '../Common/WindowM'
 import {
-    TerminalCommand,
     User,
     useTerminalContext,
-} from '../../contexts/TerminalContext'
+} from '../../contexts/TerminalContext/TerminalContext'
 import { map } from 'lodash'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import './Terminal.css'
+import { TerminalCommand } from '../../data/types/TerminalCommand'
 
 export const Terminal: FC = memo(() => {
     const {
@@ -25,17 +25,12 @@ export const Terminal: FC = memo(() => {
         addLineItem,
         pendingLineItem,
         isTyping,
+        commandHistoryBack,
+        commandHistoryForward,
+        commandHistoryValue,
     } = useTerminalContext()
 
-    const [shouldScrollOnNextTick, setShouldScrollOnNextTick] =
-        useState<boolean>(false)
-
-    useEffect(() => {
-        if (shouldScrollOnNextTick) {
-            scrollToBottomOfTerminal()
-            setShouldScrollOnNextTick(false)
-        }
-    }, [shouldScrollOnNextTick])
+    const inputRef = useRef<HTMLTextAreaElement>(null)
 
     useLayoutEffect(() => {
         const onBoot = async (): Promise<void> => {
@@ -43,11 +38,11 @@ export const Terminal: FC = memo(() => {
             await typePendingLineItem({ value: 'My name is Mark Minkoff' })
             await typePendingLineItem(
                 {
-                    value: 'I am a Full Stack Enginner currently building @ ManageXR',
+                    value: 'I am a Full Stack Engineer currently building @ ManageXR',
                 },
                 {
                     finalItem: {
-                        value: 'I am a Full Stack Enginner currently building @ [ManageXR](https://www.managexr.com/)',
+                        value: 'I am a Full Stack Engineer currently building @ [ManageXR](https://www.managexr.com/)',
                     },
                 }
             )
@@ -86,15 +81,34 @@ export const Terminal: FC = memo(() => {
         )
     })
 
+    const setCursorEnd = useCallback(() => {
+        const inputElement = inputRef.current
+
+        if (inputElement === null) return
+
+        inputElement.setSelectionRange(
+            commandHistoryValue.length,
+            commandHistoryValue.length
+        )
+    }, [commandHistoryValue.length])
+
     const onKeyDownEventHandler: DOMAttributes<HTMLTextAreaElement>['onKeyDown'] =
         (event) => {
             if (isTyping) return
 
             if (event.key === 'Enter') {
                 addLineItem()
+            } else if (event.key === 'ArrowUp') {
+                commandHistoryBack()
+                updatePendingLineItem({ value: commandHistoryValue })
+                setTimeout(setCursorEnd, 0)
+            } else if (event.key === 'ArrowDown') {
+                commandHistoryForward()
+                updatePendingLineItem({ value: commandHistoryValue })
+                setTimeout(setCursorEnd, 0)
             }
 
-            setShouldScrollOnNextTick(true)
+            setTimeout(scrollToBottomOfTerminal, 0)
         }
 
     const scrollToBottomOfTerminal = (): void => {
@@ -161,6 +175,7 @@ export const Terminal: FC = memo(() => {
                         <textarea
                             id="user-input"
                             name="user-input"
+                            ref={inputRef}
                             className="relative opacity-0 outline-none bg-transparent caret-violet-600"
                             value={pendingLineItem.value}
                             onKeyDown={onKeyDownEventHandler}

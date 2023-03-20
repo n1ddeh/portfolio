@@ -7,16 +7,21 @@ import {
 } from 'react'
 import { v4 } from 'uuid'
 import { isUndefined, random, split, trim, last, isString } from 'lodash'
-import { useHello } from '../terminal-programs/useHello'
-import { useTime } from '../terminal-programs/useTime'
-import { useHelp } from '../terminal-programs/useHelp'
-import { useAuthor } from '../terminal-programs/useAuthor'
-import { useRickRoll } from '../terminal-programs/useRickRoll'
-import { sleep } from '../utils/sleep'
-import { useContactMe } from '../terminal-programs/useContactMe'
-import { useSource } from '../terminal-programs/useSource'
-import { useAnalyticsContext } from './AnalyticsContext'
-import { AnalyticsEvent } from '../data/types/AnalyticsEvent'
+import { useHello } from '../../terminal-programs/useHello'
+import { useTime } from '../../terminal-programs/useTime'
+import { useHelp } from '../../terminal-programs/useHelp'
+import { useAuthor } from '../../terminal-programs/useAuthor'
+import { useRickRoll } from '../../terminal-programs/useRickRoll'
+import { sleep } from '../../utils/sleep'
+import { useContactMe } from '../../terminal-programs/useContactMe'
+import { useSource } from '../../terminal-programs/useSource'
+import { useAnalyticsContext } from '../AnalyticsContext'
+import { AnalyticsEvent } from '../../data/types/AnalyticsEvent'
+import { TerminalCommand } from '../../data/types/TerminalCommand'
+import {
+    useCommandHistory,
+    type UseCommandHistoryResponse,
+} from './hooks/useCommandHistory'
 
 export enum User {
     ROOT = 'ROOT',
@@ -31,7 +36,7 @@ interface TerminalLineItem {
 
 type TerminalPendingLineItem = Pick<TerminalLineItem, 'value'>
 
-interface TerminalContextProps {
+type TerminalContextProps = {
     data: TerminalLineItem[]
     hiddenLineItems: TerminalLineItem[]
 
@@ -52,32 +57,38 @@ interface TerminalContextProps {
      */
     updatePendingLineItem: (newLineItem: TerminalPendingLineItem) => void
 
+    /**
+     * Type an input into the terminal
+     */
     typePendingLineItem: (
         newLineItem: TerminalPendingLineItem,
         options?: { finalItem?: TerminalPendingLineItem }
     ) => Promise<void>
 
+    /**
+     * Determines if `typePendingLineItem()` is firing
+     */
     isTyping: boolean
-}
-
-export enum TerminalCommand {
-    HELLO = 'hello',
-    HI = 'hi',
-    CLEAR = 'clear',
-    AUTHOR = 'author',
-    HELP = 'help',
-    TIME = 'time',
-    RICK_ROLL = 'rick roll',
-    CONTACT_ME = 'contact',
-    SOURCE = 'source',
-}
+} & Pick<
+    UseCommandHistoryResponse,
+    'commandHistoryForward' | 'commandHistoryBack' | 'commandHistoryValue'
+>
 
 const TerminalContext = createContext<TerminalContextProps | undefined>(
     undefined
 )
 
 export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
+    const {
+        commandHistoryValue,
+        commandHistoryForward,
+        commandHistoryBack,
+        commandHistoryAdd,
+        commandHistoryBottom,
+    } = useCommandHistory()
+
     const [lineItems, setLineItems] = useState<TerminalContextProps['data']>([])
+
     const { logEvent } = useAnalyticsContext()
     const [hiddenLineItems, setHiddenLineItems] = useState<
         TerminalContextProps['hiddenLineItems']
@@ -88,14 +99,16 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
     const [isTyping, setIsTyping] = useState<boolean>(false)
 
     const addLineItem = (): void => {
-        const sanatizedValue = trim(pendingLineItem.value)
+        const sanitizedValue = trim(pendingLineItem.value)
 
-        if (sanatizedValue !== '') {
+        if (sanitizedValue !== '') {
+            commandHistoryAdd(sanitizedValue)
+            commandHistoryBottom()
             setLineItems((currentLineItems) => [
                 ...currentLineItems,
                 { id: v4(), user: User.USER, value: pendingLineItem.value },
             ])
-            commandParser(sanatizedValue)
+            commandParser(sanitizedValue)
         }
 
         setPendingLineItem({ value: '' })
@@ -131,8 +144,8 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
             { value: newLineItem.value[0], time: 0 },
         ]
 
-        const minMs = 25
-        const maxMs = 75
+        const minMs = 10
+        const maxMs = 50
 
         for (let i = 1; i < newLineItem.value.length; i++) {
             const nextValue =
@@ -188,9 +201,9 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 res = res.join('\n')
             }
             if (res !== '') {
-                const sanitized = sanatizer(res)
-                for (const sanatizedValue of sanitized) {
-                    addRootLineItem(sanatizedValue)
+                const sanitized = sanitizer(res)
+                for (const sanitizedValue of sanitized) {
+                    addRootLineItem(sanitizedValue)
                 }
                 sendAnalyticsForCommand(text)
             }
@@ -205,7 +218,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         }
     }
 
-    const sanatizer = (text: string): string[] => {
+    const sanitizer = (text: string): string[] => {
         const lines = split(text, '\n')
         return lines
     }
@@ -221,6 +234,9 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 updatePendingLineItem,
                 typePendingLineItem,
                 isTyping,
+                commandHistoryValue,
+                commandHistoryForward,
+                commandHistoryBack,
             }}
         >
             {children}

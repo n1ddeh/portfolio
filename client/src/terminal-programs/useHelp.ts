@@ -1,4 +1,4 @@
-import { TerminalCommand } from '../contexts/TerminalContext'
+import { TerminalCommand } from '../data/types/TerminalCommand'
 
 export const useHelp = (): string => {
     let res = ''
