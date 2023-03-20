@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 
 export type UseCommandHistoryResponse = {
+    commandHistory: string[]
     /**
      *
      * @param input - Input to add to the history
@@ -49,6 +50,7 @@ export const useCommandHistory = (): UseCommandHistoryResponse => {
     }, [commandHistory, historyIndex])
 
     return {
+        commandHistory,
         commandHistoryValue,
         commandHistoryAdd,
         commandHistoryForward,

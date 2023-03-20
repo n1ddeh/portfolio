@@ -12,7 +12,7 @@ import {
     User,
     useTerminalContext,
 } from '../../contexts/TerminalContext/TerminalContext'
-import { map } from 'lodash'
+import { map, trim } from 'lodash'
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
 import './Terminal.css'
 import { TerminalCommand } from '../../data/types/TerminalCommand'
@@ -28,6 +28,7 @@ export const Terminal: FC = memo(() => {
         commandHistoryBack,
         commandHistoryForward,
         commandHistoryValue,
+        commandMatch,
     } = useTerminalContext()
 
     const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -106,6 +107,11 @@ export const Terminal: FC = memo(() => {
                 commandHistoryForward()
                 updatePendingLineItem({ value: commandHistoryValue })
                 setTimeout(setCursorEnd, 0)
+            } else if (
+                event.key === 'ArrowRight' &&
+                commandMatch !== undefined
+            ) {
+                updatePendingLineItem({ value: commandMatch })
             }
 
             setTimeout(scrollToBottomOfTerminal, 0)
@@ -171,6 +177,14 @@ export const Terminal: FC = memo(() => {
                                     ? ''
                                     : pendingLineItem.value.at(-1)}
                             </div>
+                            {commandMatch !== undefined ? (
+                                <div className={'inline text-gray-700'}>
+                                    {commandMatch.slice(
+                                        trim(pendingLineItem.value).length,
+                                        commandMatch.length
+                                    )}
+                                </div>
+                            ) : null}
                         </span>
                         <textarea
                             id="user-input"

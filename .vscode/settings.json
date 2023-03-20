@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
-        "camelcase"
+        "camelcase",
+        "Minkoff"
     ],
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true,

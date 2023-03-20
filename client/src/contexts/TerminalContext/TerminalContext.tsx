@@ -23,6 +23,10 @@ import {
     type UseCommandHistoryResponse,
 } from './hooks/useCommandHistory'
 import { useCommandParser } from './hooks/useCommandParser'
+import {
+    useCommandMatcher,
+    type UseCommandMatcherResponse,
+} from './hooks/useCommandMatcher'
 
 export enum User {
     ROOT = 'ROOT',
@@ -72,7 +76,8 @@ type TerminalContextProps = {
 } & Pick<
     UseCommandHistoryResponse,
     'commandHistoryForward' | 'commandHistoryBack' | 'commandHistoryValue'
->
+> &
+    Pick<UseCommandMatcherResponse, 'commandMatch'>
 
 const TerminalContext = createContext<TerminalContextProps | undefined>(
     undefined
@@ -92,12 +97,18 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const {
+        commandHistory,
         commandHistoryValue,
         commandHistoryForward,
         commandHistoryBack,
         commandHistoryAdd,
         commandHistoryBottom,
     } = useCommandHistory()
+
+    const { commandMatch } = useCommandMatcher({
+        commands: commandHistory,
+        text: trim(pendingLineItem.value),
+    })
 
     const commandCallbackMap: {
         [commandKey in TerminalCommand]: () => string[]
@@ -227,6 +238,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
                 commandHistoryValue,
                 commandHistoryForward,
                 commandHistoryBack,
+                commandMatch,
             }}
         >
             {children}
