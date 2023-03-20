@@ -1,4 +1,4 @@
-span.caret-block {
+div.caret-block {
     background-color: hsla(1, 1%, 100%, 1);
     animation: blink 1s step-end infinite;
 }

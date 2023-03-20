@@ -86,8 +86,10 @@ export const Terminal: FC = memo(() => {
         )
     })
 
-    const onKeyDownEventHandler: DOMAttributes<HTMLInputElement>['onKeyDown'] =
+    const onKeyDownEventHandler: DOMAttributes<HTMLTextAreaElement>['onKeyDown'] =
         (event) => {
+            if (isTyping) return
+
             if (event.key === 'Enter') {
                 addLineItem()
             }
@@ -101,11 +103,10 @@ export const Terminal: FC = memo(() => {
         terminalWindowElement.scrollTo(0, terminalWindowElement.scrollHeight)
     }
 
-    const onChangeEventHandler: DOMAttributes<HTMLInputElement>['onChange'] = (
-        event
-    ) => {
-        updatePendingLineItem({ value: event.currentTarget.value })
-    }
+    const onChangeEventHandler: DOMAttributes<HTMLTextAreaElement>['onChange'] =
+        (event) => {
+            updatePendingLineItem({ value: event.currentTarget.value })
+        }
 
     const onTerminalClickHandler = (): void => {
         const inputElement = document.getElementById('user-input')
@@ -148,23 +149,23 @@ export const Terminal: FC = memo(() => {
                                     pendingLineItem.value.length - 1
                                 )}
                             </span>
-                            <span
-                                style={{ color: commandColor }}
-                                className={`caret-block`}
+                            <div
+                                style={{ color: commandColor, width: '1ch' }}
+                                className={`caret-block inline`}
                             >
                                 {pendingLineItem.value === ''
-                                    ? '|'
+                                    ? ''
                                     : pendingLineItem.value.at(-1)}
-                            </span>
+                            </div>
                         </span>
-                        <input
-                            type="text"
+                        <textarea
                             id="user-input"
                             name="user-input"
                             className="relative opacity-0 outline-none bg-transparent caret-violet-600"
                             value={pendingLineItem.value}
                             onKeyDown={onKeyDownEventHandler}
                             onChange={onChangeEventHandler}
+                            disabled={isTyping}
                         />
                     </div>
                 </div>
