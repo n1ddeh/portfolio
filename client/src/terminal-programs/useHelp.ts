@@ -1,7 +1,7 @@
 import { TerminalCommand } from '../data/types/TerminalCommand'
 
-export const useHelp = (): string => {
-    let res = ''
+export const useHelp = (): string[] => {
+    const result: string[] = []
 
     const docs: { [command in TerminalCommand]?: string } = {
         [TerminalCommand.CLEAR]: 'hides line items from the terminal',
@@ -14,12 +14,8 @@ export const useHelp = (): string => {
         const command = commands[i]
         const helperText = docs[commands[i]]
         if (helperText === undefined) continue
-        res += `**${command}**:  ${helperText}`
-
-        if (i < commands.length - 1) {
-            res += '\n'
-        }
+        result.push(`**${command}**:  ${helperText}`)
     }
 
-    return res
+    return result
 }

@@ -1,11 +1,11 @@
 import { AudioRickRoll } from '../audio'
 import { ImageRickRoll } from '../images'
-export const useRickRoll = (): string => {
+export const useRickRoll = (): string[] => {
     const terminalWindow = document.getElementById('Terminal')
     const rickRollGif = document.createElement('img')
     rickRollGif.src = ImageRickRoll
     rickRollGif.className = 'absolute rounded-2xl top-0 right-0 w-64'
-    if (terminalWindow == null) return ''
+    if (terminalWindow == null) return []
 
     const playRickRoll = async (): Promise<void> => {
         const rickRoll = new Audio(AudioRickRoll)
@@ -23,5 +23,5 @@ export const useRickRoll = (): string => {
         console.log(e)
     })
 
-    return ''
+    return []
 }

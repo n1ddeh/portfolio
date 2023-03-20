@@ -6,7 +6,7 @@ import {
     useContext,
 } from 'react'
 import { v4 } from 'uuid'
-import { isUndefined, random, split, trim, last, isString } from 'lodash'
+import { isUndefined, random, chain, trim, last } from 'lodash'
 import { useHello } from '../../terminal-programs/useHello'
 import { useTime } from '../../terminal-programs/useTime'
 import { useHelp } from '../../terminal-programs/useHelp'
@@ -22,6 +22,7 @@ import {
     useCommandHistory,
     type UseCommandHistoryResponse,
 } from './hooks/useCommandHistory'
+import { useCommandParser } from './hooks/useCommandParser'
 
 export enum User {
     ROOT = 'ROOT',
@@ -38,7 +39,6 @@ type TerminalPendingLineItem = Pick<TerminalLineItem, 'value'>
 
 type TerminalContextProps = {
     data: TerminalLineItem[]
-    hiddenLineItems: TerminalLineItem[]
 
     /**
      * What the user is typing
@@ -79,6 +79,18 @@ const TerminalContext = createContext<TerminalContextProps | undefined>(
 )
 
 export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
+    const [lineItems, setLineItems] = useState<TerminalContextProps['data']>([])
+    const [isTyping, setIsTyping] = useState<boolean>(false)
+    const [pendingLineItem, setPendingLineItem] =
+        useState<TerminalPendingLineItem>({ value: '' })
+
+    const { logEvent } = useAnalyticsContext()
+
+    const clearLineItems = (): string[] => {
+        setLineItems([])
+        return ['']
+    }
+
     const {
         commandHistoryValue,
         commandHistoryForward,
@@ -87,31 +99,61 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         commandHistoryBottom,
     } = useCommandHistory()
 
-    const [lineItems, setLineItems] = useState<TerminalContextProps['data']>([])
+    const commandCallbackMap: {
+        [commandKey in TerminalCommand]: () => string[]
+    } = {
+        [TerminalCommand.CLEAR]: clearLineItems,
+        [TerminalCommand.AUTHOR]: useAuthor,
+        [TerminalCommand.HELP]: useHelp,
+        [TerminalCommand.TIME]: useTime,
+        [TerminalCommand.HELLO]: useHello,
+        [TerminalCommand.HI]: useHello,
+        [TerminalCommand.RICK_ROLL]: useRickRoll,
+        [TerminalCommand.CONTACT_ME]: () => {
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND_CONTACT_ME)
+            return useContactMe
+        },
+        [TerminalCommand.SOURCE]: useSource,
+    }
 
-    const { logEvent } = useAnalyticsContext()
-    const [hiddenLineItems, setHiddenLineItems] = useState<
-        TerminalContextProps['hiddenLineItems']
-    >([])
-    const [pendingLineItem, setPendingLineItem] =
-        useState<TerminalPendingLineItem>({ value: '' })
-
-    const [isTyping, setIsTyping] = useState<boolean>(false)
+    const { commandParser } = useCommandParser({ commandCallbackMap })
 
     const addLineItem = (): void => {
         const sanitizedValue = trim(pendingLineItem.value)
 
-        if (sanitizedValue !== '') {
-            commandHistoryAdd(sanitizedValue)
-            commandHistoryBottom()
-            setLineItems((currentLineItems) => [
-                ...currentLineItems,
-                { id: v4(), user: User.USER, value: pendingLineItem.value },
-            ])
-            commandParser(sanitizedValue)
-        }
+        if (sanitizedValue === '') return
 
         setPendingLineItem({ value: '' })
+        commandHistoryAdd(sanitizedValue)
+        commandHistoryBottom()
+        setLineItems((currentLineItems) => [
+            ...currentLineItems,
+            { id: v4(), user: User.USER, value: pendingLineItem.value },
+        ])
+        const commandResult = commandParser(sanitizedValue)
+
+        const lineItemsToAdd: TerminalLineItem[] =
+            commandResult === false
+                ? [
+                      {
+                          id: v4(),
+                          user: User.ROOT,
+                          value: `msh: command not found: **${sanitizedValue}**`,
+                      },
+                  ]
+                : chain(commandResult)
+                      .compact()
+                      .map((result) => ({
+                          id: v4(),
+                          user: User.USER,
+                          value: result,
+                      }))
+                      .value()
+
+        setLineItems((currentLineItems) => [
+            ...currentLineItems,
+            ...lineItemsToAdd,
+        ])
     }
 
     /**
@@ -172,62 +214,10 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         setIsTyping(false)
     }
 
-    const clear = (): string => {
-        setHiddenLineItems((currentHiddenLineItems) => [
-            ...lineItems,
-            ...currentHiddenLineItems,
-        ])
-        setLineItems([])
-        return ''
-    }
-
-    const commandParser = (text: string): void => {
-        const options: {
-            [command in TerminalCommand]: () => string | string[]
-        } = {
-            [TerminalCommand.CLEAR]: clear,
-            [TerminalCommand.AUTHOR]: useAuthor,
-            [TerminalCommand.HELP]: useHelp,
-            [TerminalCommand.TIME]: useTime,
-            [TerminalCommand.HELLO]: useHello,
-            [TerminalCommand.HI]: useHello,
-            [TerminalCommand.RICK_ROLL]: useRickRoll,
-            [TerminalCommand.CONTACT_ME]: useContactMe,
-            [TerminalCommand.SOURCE]: useSource,
-        }
-        if (options[text as TerminalCommand] !== undefined) {
-            let res = options[text as TerminalCommand]()
-            if (!isString(res)) {
-                res = res.join('\n')
-            }
-            if (res !== '') {
-                const sanitized = sanitizer(res)
-                for (const sanitizedValue of sanitized) {
-                    addRootLineItem(sanitizedValue)
-                }
-                sendAnalyticsForCommand(text)
-            }
-        } else {
-            addRootLineItem(`msh: command not found: **${text}**`)
-        }
-    }
-
-    const sendAnalyticsForCommand = (text: string): void => {
-        if (text === TerminalCommand.CONTACT_ME) {
-            logEvent(AnalyticsEvent.TERMINAL_COMMAND_CONTACT_ME)
-        }
-    }
-
-    const sanitizer = (text: string): string[] => {
-        const lines = split(text, '\n')
-        return lines
-    }
-
     return (
         <TerminalContext.Provider
             value={{
                 data: lineItems,
-                hiddenLineItems,
                 pendingLineItem,
                 addLineItem,
                 addRootLineItem,

@@ -1,3 +1,3 @@
-export const useAuthor = (): string => {
-    return 'Mark Minkoff'
+export const useAuthor = (): string[] => {
+    return ['Mark Minkoff']
 }

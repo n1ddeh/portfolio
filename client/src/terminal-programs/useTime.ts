@@ -1,4 +1,4 @@
-export const useTime = (): string => {
+export const useTime = (): string[] => {
     const now = new Date()
-    return now.toLocaleTimeString()
+    return [now.toLocaleTimeString()]
 }
