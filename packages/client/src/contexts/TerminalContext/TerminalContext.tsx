@@ -208,18 +208,22 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
             const minMs = 10
             const maxMs = 50
 
+            const useRandomTime = !import.meta.env.DEV
+
             for (let i = 1; i < newLineItem.value.length; i++) {
                 const nextValue =
                     lineItemsOverTime[i - 1].value + newLineItem.value[i]
                 lineItemsOverTime.push({
                     value: nextValue,
-                    time: random(minMs, maxMs),
+                    time: useRandomTime ? random(minMs, maxMs) : 0,
                 })
             }
 
             for (const lineItem of lineItemsOverTime) {
                 setPendingLineItem({ value: lineItem.value })
-                await sleep(lineItem.time)
+                if (lineItem.time > 0) {
+                    await sleep(lineItem.time)
+                }
             }
 
             const lastItem =
