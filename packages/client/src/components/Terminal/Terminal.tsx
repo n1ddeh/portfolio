@@ -151,7 +151,7 @@ export const Terminal: FC = memo(() => {
     return (
         <WindowM
             windowId="Terminal"
-            className="py-2 h-96  md:h-auto md:!w-160 md:aspect-video"
+            className="py-2 h-96 md:h-auto md:!w-160 md:aspect-video"
             toolbarProps={{ title: '-msh' }}
         >
             <div

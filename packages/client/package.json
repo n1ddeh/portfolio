@@ -5,9 +5,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite --mode dev",
-        "build": "tsc && vite build",
-        "deploy": "tsc && vite build --mode dev && firebase deploy --only hosting:markminkoff",
-        "deploy:prod": "tsc && vite build --mode prod && firebase deploy --only hosting:markminkoff",
+        "build": "tsc && vite build --mode prod",
+        "deploy": "firebase deploy --only hosting:markminkoff",
         "preview": "vite preview"
     },
     "dependencies": {
