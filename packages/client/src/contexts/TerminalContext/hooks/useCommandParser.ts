@@ -8,7 +8,7 @@ export type UseCommandsParams = {
 }
 
 export type UseCommandParserResponse = {
-    commandParser: (command: string) => string[] | false
+    commandParser: (command: string) => { linesItems: string[], command: TerminalCommand } | false
 }
 
 export const useCommandParser = ({
@@ -20,10 +20,13 @@ export const useCommandParser = ({
         return some(validCommands, (validCommand) => validCommand === text)
     }
 
-    const commandParser = (command: string): string[] | false => {
+    const commandParser: UseCommandParserResponse['commandParser'] = (command) => {
         if (!validateCommand(command)) return false
 
-        return commandCallbackMap[command]()
+        return {
+            linesItems: commandCallbackMap[command](),
+            command
+        }
     }
 
     return {

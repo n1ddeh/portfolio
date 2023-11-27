@@ -122,10 +122,7 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         [TerminalCommand.HELLO]: useHello,
         [TerminalCommand.HI]: useHello,
         [TerminalCommand.RICK_ROLL]: useRickRoll,
-        [TerminalCommand.CONTACT_ME]: (() => {
-            logEvent(AnalyticsEvent.TERMINAL_COMMAND_CONTACT_ME)
-            return useContactMe
-        })(),
+        [TerminalCommand.CONTACT_ME]: useContactMe,
         [TerminalCommand.SOURCE]: useSource,
     }
 
@@ -145,23 +142,30 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         ])
         const commandResult = commandParser(sanitizedValue)
 
-        const lineItemsToAdd: TerminalLineItem[] =
-            commandResult === false
-                ? [
-                      {
-                          id: v4(),
-                          user: User.ROOT,
-                          value: `msh: command not found: **${sanitizedValue}**`,
-                      },
-                  ]
-                : chain(commandResult)
-                      .compact()
-                      .map((result) => ({
-                          id: v4(),
-                          user: User.ROOT,
-                          value: result,
-                      }))
-                      .value()
+        const lineItemsToAdd: TerminalLineItem[] = []
+
+        if (commandResult !== false) {
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND, { value: commandResult.command })
+
+            lineItemsToAdd.push(...chain(commandResult.linesItems)
+                .compact()
+                .map((result) => ({
+                    id: v4(),
+                    user: User.ROOT,
+                    value: result,
+                }))
+                .value()) 
+
+        } else {
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND_UNKNOWN, { value: sanitizedValue })
+
+            lineItemsToAdd.push({
+                id: v4(),
+                user: User.ROOT,
+                value: `msh: command not found: **${sanitizedValue}**`,
+            })
+
+        }
 
         setLineItems((currentLineItems) => [
             ...currentLineItems,

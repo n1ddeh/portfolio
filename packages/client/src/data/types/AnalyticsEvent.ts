@@ -1,3 +1,4 @@
 export enum AnalyticsEvent {
-    TERMINAL_COMMAND_CONTACT_ME = 'terminal_command_contact_me',
+    TERMINAL_COMMAND = 'terminal_command',
+    TERMINAL_COMMAND_UNKNOWN = 'terminal_command_unknown',
 }
