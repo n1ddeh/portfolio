@@ -1,5 +1,6 @@
 import { type FC } from 'react'
 import './index.css'
+import './assets/css/css-reset.css'
 import { Terminal } from './components/Terminal/Terminal'
 import { TerminalProvider } from './contexts/TerminalContext/TerminalContext'
 import { AnalyticsProvider } from './contexts/AnalyticsContext'
