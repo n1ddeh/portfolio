@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #1d1d1d;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+a {
+    text-decoration: underline;
+    color: rgb(68, 68, 255);
+}
