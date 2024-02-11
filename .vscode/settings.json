@@ -1,15 +1,15 @@
 {
-  "cSpell.words": ["camelcase", "Minkoff"],
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll": true
-  },
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
-  "editor.formatOnType": true,
-  "[html]": {
-    "editor.defaultFormatter": "vscode.html-language-features"
-  },
-  "css.lint.unknownAtRules": "ignore",
-  "typescript.tsdk": "client/node_modules/typescript/lib"
+    "cSpell.words": ["camelcase", "Minkoff"],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll": "explicit"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "css.lint.unknownAtRules": "ignore",
+    "typescript.tsdk": "client/node_modules/typescript/lib"
 }
