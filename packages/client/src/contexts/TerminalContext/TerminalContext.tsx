@@ -145,26 +145,30 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
         const lineItemsToAdd: TerminalLineItem[] = []
 
         if (commandResult !== false) {
-            logEvent(AnalyticsEvent.TERMINAL_COMMAND, { value: commandResult.command })
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND, {
+                value: commandResult.command,
+            })
 
-            lineItemsToAdd.push(...chain(commandResult.linesItems)
-                .compact()
-                .map((result) => ({
-                    id: v4(),
-                    user: User.ROOT,
-                    value: result,
-                }))
-                .value()) 
-
+            lineItemsToAdd.push(
+                ...chain(commandResult.linesItems)
+                    .compact()
+                    .map((result) => ({
+                        id: v4(),
+                        user: User.ROOT,
+                        value: result,
+                    }))
+                    .value()
+            )
         } else {
-            logEvent(AnalyticsEvent.TERMINAL_COMMAND_UNKNOWN, { value: sanitizedValue })
+            logEvent(AnalyticsEvent.TERMINAL_COMMAND_UNKNOWN, {
+                value: sanitizedValue,
+            })
 
             lineItemsToAdd.push({
                 id: v4(),
                 user: User.ROOT,
                 value: `msh: command not found: **${sanitizedValue}**`,
             })
-
         }
 
         setLineItems((currentLineItems) => [
@@ -205,29 +209,20 @@ export const TerminalProvider: FC<PropsWithChildren> = ({ children }) => {
 
             setIsTyping(true)
 
-            const lineItemsOverTime: Array<{ value: string; time: number }> = [
-                { value: newLineItem.value[0], time: 0 },
+            const lineItemsOverTime: Array<{ value: string }> = [
+                { value: newLineItem.value[0] },
             ]
-
-            const minMs = 10
-            const maxMs = 50
-
-            const useRandomTime = !import.meta.env.DEV
 
             for (let i = 1; i < newLineItem.value.length; i++) {
                 const nextValue =
                     lineItemsOverTime[i - 1].value + newLineItem.value[i]
                 lineItemsOverTime.push({
                     value: nextValue,
-                    time: useRandomTime ? random(minMs, maxMs) : 0,
                 })
             }
 
             for (const lineItem of lineItemsOverTime) {
                 setPendingLineItem({ value: lineItem.value })
-                if (lineItem.time > 0) {
-                    await sleep(lineItem.time)
-                }
             }
 
             const lastItem =
