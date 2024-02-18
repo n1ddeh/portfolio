@@ -9,3 +9,5 @@ export enum TerminalCommand {
     CONTACT_ME = 'contact',
     SOURCE = 'source',
 }
+
+export const TerminalCommandSet = new Set(Object.values(TerminalCommand))

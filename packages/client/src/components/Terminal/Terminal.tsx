@@ -1,8 +1,6 @@
 import {
     type FC,
-    memo,
     type DOMAttributes,
-    useMemo,
     useLayoutEffect,
     useRef,
     useCallback,
@@ -15,9 +13,12 @@ import {
 import { map, trim } from 'lodash'
 import ReactMarkdown from 'react-markdown'
 import './Terminal.css'
-import { TerminalCommand } from '../../data/types/TerminalCommand'
+import {
+    TerminalCommand,
+    TerminalCommandSet,
+} from '../../data/types/TerminalCommand'
 
-export const Terminal: FC = memo(() => {
+export const Terminal: FC = () => {
     const {
         data,
         updatePendingLineItem,
@@ -99,6 +100,7 @@ export const Terminal: FC = memo(() => {
 
             if (event.key === 'Enter') {
                 addLineItem()
+                event.preventDefault()
             } else if (event.key === 'ArrowUp') {
                 commandHistoryBack()
                 updatePendingLineItem({ value: commandHistoryValue })
@@ -135,19 +137,18 @@ export const Terminal: FC = memo(() => {
         inputElement.focus()
     }
 
-    const isPendingLineItemValidCommand = useMemo(() => {
-        for (const command of Object.values(TerminalCommand)) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-            if (command === pendingLineItem.value) return true
-        }
-        return false
-    }, [pendingLineItem.value])
+    const isPendingLineItemValidCommand = TerminalCommandSet.has(
+        pendingLineItem.value as TerminalCommand
+    )
 
-    const commandColor = isTyping
-        ? ''
-        : isPendingLineItemValidCommand
-          ? '#128022'
-          : '#801212'
+    let commandColor = ''
+    if (!isTyping) {
+        if (isPendingLineItemValidCommand) {
+            commandColor = '#128022'
+        } else {
+            commandColor = '#801212'
+        }
+    }
 
     return (
         <WindowM
@@ -203,6 +204,6 @@ export const Terminal: FC = memo(() => {
             </div>
         </WindowM>
     )
-})
+}
 
 Terminal.displayName = 'Terminal'
