@@ -108,9 +108,10 @@ export const Terminal: FC = memo(() => {
                 updatePendingLineItem({ value: commandHistoryValue })
                 setTimeout(setCursorEnd, 0)
             } else if (
-                event.key === 'ArrowRight' &&
+                (event.key === 'ArrowRight' || event.key === 'Tab') &&
                 commandMatch !== undefined
             ) {
+                event.preventDefault()
                 updatePendingLineItem({ value: commandMatch })
             }
 
